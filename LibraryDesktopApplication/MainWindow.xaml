@@ -1,0 +1,135 @@
+﻿<Window x:Class="LibraryDesktopApplication.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LibraryDesktopApplication"
+        mc:Ignorable="d"
+        Title="Бібліотека" Height="600" Width="800">
+    <Window.Resources>
+        <local:AuthorsToStringMultiConverter x:Key="AuthorsToStringMultiConverter"/>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style TargetType="ListView">
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="Background" Value="#FF4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Секція для книг -->
+        <StackPanel Grid.Column="0" Margin="10">
+            <ListView ItemsSource="{Binding BooksView}" 
+                      SelectedItem="{Binding SelectedBook}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Назва" DisplayMemberBinding="{Binding Title}"/>
+                        <GridViewColumn Header="Рік" DisplayMemberBinding="{Binding Year}"/>
+                        <GridViewColumn Header="Автори">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource AuthorsToStringMultiConverter}">
+                                                <Binding Path="."/>
+                                                <Binding Path="DataContext" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <StackPanel Margin="5">
+                <!-- Поля для додавання нової книги -->
+                <TextBlock Text="Нова книга:" Margin="0,0,0,5"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Text="{Binding NewBook.Title, UpdateSourceTrigger=PropertyChanged}" 
+                             Width="200" 
+                             Margin="0,0,5,0"/>
+                    <TextBox Text="{Binding NewBook.Year, UpdateSourceTrigger=PropertyChanged}" 
+                             Width="50"/>
+                </StackPanel>
+                <Button Content="Додати книгу" 
+                        Command="{Binding AddBookCommand}"/>
+
+                <!-- Поля для редагування книги (видимі лише в режимі редагування) -->
+                <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="Редагувати книгу:" Margin="0,10,0,5"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="{Binding NewBook.Title, UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="200" 
+                                 Margin="0,0,5,0"/>
+                        <TextBox Text="{Binding NewBook.Year, UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="50"/>
+                    </StackPanel>
+                    <Button Content="Зберегти" 
+                            Command="{Binding SaveEditCommand}" 
+                            Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <Button Content="Редагувати книгу" 
+                        Command="{Binding EditBookCommand}"/>
+                <Button Content="Видалити книгу" 
+                        Command="{Binding DeleteBookCommand}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Секція для авторів -->
+        <StackPanel Grid.Column="1" Margin="10">
+            <ListView ItemsSource="{Binding AuthorViewModel.Authors}" 
+                      SelectedItem="{Binding AuthorViewModel.SelectedAuthor}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Ім'я автора" DisplayMemberBinding="{Binding Name}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <StackPanel Margin="5">
+                <TextBlock Text="Новий автор:" Margin="0,0,0,5"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Text="{Binding AuthorViewModel.NewAuthor.Name, UpdateSourceTrigger=PropertyChanged}" 
+                             Width="200" 
+                             Margin="0,0,5,0" 
+                             ToolTip="Введіть ім'я нового автора"/>
+                    <Button Content="Додати автора" 
+                            Command="{Binding AuthorViewModel.AddAuthorCommand}"/>
+                </StackPanel>
+            </StackPanel>
+            <!-- Додавання/видалення автора до книги -->
+            <StackPanel Margin="5">
+                <Button Content="Додати автора до книги" 
+                        Command="{Binding AddAuthorToBookCommand}" 
+                        ToolTip="Виберіть книгу і автора, щоб додати автора до книги"/>
+                <Button Content="Видалити автора з книги" 
+                        Command="{Binding RemoveAuthorFromBookCommand}" 
+                        ToolTip="Виберіть книгу і автора, щоб видалити автора з книги"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
