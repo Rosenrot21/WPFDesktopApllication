@@ -10,3 +10,4 @@ rename author;
 delete author from book;
 add author to book;
 delet author;
+Connected to postgreSQL db, also using Entity, so u must "update database" before use.
