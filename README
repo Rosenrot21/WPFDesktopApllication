@@ -1,0 +1,12 @@
+My WPF application. 
+Contains CRUD commands:
+books:
+add book;
+rename book;
+delete book;
+authors:
+add author;
+rename author;
+delete author from book;
+add author to book;
+delet author;
